@@ -12,6 +12,10 @@ A production-ready [Model Context Protocol](https://modelcontextprotocol.io) ser
 
 - **MCP SDK** — `@modelcontextprotocol/sdk` with stdio transport
 - **TypeScript** — Strict mode, ES2022 target, Zod-validated tool schemas
+- **Safety Annotations** — readOnly/destructive/idempotent hints on every tool
+- **Prompts** — Guided workflow templates for common tasks
+- **Response Helpers** — `ok()` and `err()` for consistent tool responses
+- **Config** — Environment variable parsing pattern
 - **CI** — gitleaks, npm audit, license compliance, ESLint, build, test
 - **CD** — OIDC trusted publishing to npm (zero secrets needed)
 - **Dependabot** — Automated dependency + GitHub Actions updates
@@ -33,18 +37,30 @@ Create `src/tools/your-tool.ts`:
 
 ```ts
 import { z } from 'zod';
+import { ok, err } from '../helpers.js';
 
 export const name = 'your_tool';
-export const description = 'What your tool does';
 
-export const schema = {
-  input: z.string().describe('Input parameter'),
+export const config = {
+  title: 'Your Tool',
+  description: 'What your tool does',
+  inputSchema: {
+    input: z.string().describe('Input parameter'),
+  },
+  annotations: {
+    readOnlyHint: true,
+    destructiveHint: false,
+    idempotentHint: true,
+    openWorldHint: false,
+  },
 };
 
 export async function handler({ input }: { input: string }) {
-  return {
-    content: [{ type: 'text' as const, text: `Processed: ${input}` }],
-  };
+  try {
+    return ok(`Processed: ${input}`);
+  } catch (e) {
+    return err(`Failed: ${e instanceof Error ? e.message : String(e)}`);
+  }
 }
 ```
 
@@ -52,7 +68,39 @@ Register in `src/index.ts`:
 
 ```ts
 import * as yourTool from './tools/your-tool.js';
-server.tool(yourTool.name, yourTool.description, yourTool.schema, yourTool.handler);
+server.registerTool(yourTool.name, yourTool.config, yourTool.handler);
+```
+
+## Adding Prompts
+
+Create `src/prompts/your-prompt.ts`:
+
+```ts
+import { z } from 'zod';
+
+export const name = 'your-prompt';
+export const description = 'Guided workflow description';
+
+export const schema = {
+  param: z.string().optional().describe('Optional parameter'),
+};
+
+export function handler({ param }: { param?: string }) {
+  return {
+    description,
+    messages: [{
+      role: 'user' as const,
+      content: { type: 'text' as const, text: `Prompt text with ${param ?? 'default'}` },
+    }],
+  };
+}
+```
+
+Register in `src/index.ts`:
+
+```ts
+import * as yourPrompt from './prompts/your-prompt.js';
+server.prompt(yourPrompt.name, yourPrompt.description, yourPrompt.schema, yourPrompt.handler);
 ```
 
 ## Testing Locally
@@ -117,11 +165,17 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 
 ```
 src/
-├── index.ts          # Server entry — tool registration + transport
-└── tools/
-    └── greet.ts      # Example tool (replace with your own)
+├── index.ts              # Server entry — tool/prompt registration + transport
+├── config.ts             # Environment variable config
+├── helpers.ts            # ok() / err() response helpers
+├── tools/
+│   └── greet.ts          # Example tool with annotations (replace with your own)
+└── prompts/
+    └── hello.ts          # Example prompt (replace with your own)
 tests/
-└── greet.test.js     # Tests against built output
+├── greet.test.js         # Tool tests
+├── helpers.test.js       # Helper tests
+└── hello.test.js         # Prompt tests
 ```
 
 ## Scripts

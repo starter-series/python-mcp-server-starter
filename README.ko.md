@@ -12,6 +12,10 @@
 
 - **MCP SDK** — `@modelcontextprotocol/sdk` + stdio 트랜스포트
 - **TypeScript** — Strict 모드, ES2022, Zod 스키마 검증
+- **Safety Annotations** — 모든 도구에 readOnly/destructive/idempotent 힌트
+- **Prompts** — 가이드 워크플로우 템플릿
+- **응답 헬퍼** — `ok()`과 `err()`로 일관된 도구 응답
+- **Config** — 환경변수 파싱 패턴
 - **CI** — gitleaks, npm audit, 라이선스 검사, ESLint, 빌드, 테스트
 - **CD** — OIDC trusted publishing으로 npm 배포 (시크릿 0개)
 - **Dependabot** — 의존성 + GitHub Actions 자동 업데이트
@@ -33,18 +37,30 @@ npm run dev
 
 ```ts
 import { z } from 'zod';
+import { ok, err } from '../helpers.js';
 
 export const name = 'your_tool';
-export const description = 'Tool 설명';
 
-export const schema = {
-  input: z.string().describe('입력 파라미터'),
+export const config = {
+  title: 'Your Tool',
+  description: 'Tool 설명',
+  inputSchema: {
+    input: z.string().describe('입력 파라미터'),
+  },
+  annotations: {
+    readOnlyHint: true,
+    destructiveHint: false,
+    idempotentHint: true,
+    openWorldHint: false,
+  },
 };
 
 export async function handler({ input }: { input: string }) {
-  return {
-    content: [{ type: 'text' as const, text: `결과: ${input}` }],
-  };
+  try {
+    return ok(`결과: ${input}`);
+  } catch (e) {
+    return err(`실패: ${e instanceof Error ? e.message : String(e)}`);
+  }
 }
 ```
 
@@ -52,7 +68,39 @@ export async function handler({ input }: { input: string }) {
 
 ```ts
 import * as yourTool from './tools/your-tool.js';
-server.tool(yourTool.name, yourTool.description, yourTool.schema, yourTool.handler);
+server.registerTool(yourTool.name, yourTool.config, yourTool.handler);
+```
+
+## Prompt 추가
+
+`src/prompts/your-prompt.ts` 생성:
+
+```ts
+import { z } from 'zod';
+
+export const name = 'your-prompt';
+export const description = '가이드 워크플로우 설명';
+
+export const schema = {
+  param: z.string().optional().describe('선택 파라미터'),
+};
+
+export function handler({ param }: { param?: string }) {
+  return {
+    description,
+    messages: [{
+      role: 'user' as const,
+      content: { type: 'text' as const, text: `프롬프트 텍스트 ${param ?? '기본값'}` },
+    }],
+  };
+}
+```
+
+`src/index.ts`에 등록:
+
+```ts
+import * as yourPrompt from './prompts/your-prompt.js';
+server.prompt(yourPrompt.name, yourPrompt.description, yourPrompt.schema, yourPrompt.handler);
 ```
 
 ## 로컬 테스트
@@ -117,11 +165,17 @@ npx @modelcontextprotocol/inspector node dist/index.js
 
 ```
 src/
-├── index.ts          # 서버 진입점 — Tool 등록 + 트랜스포트
-└── tools/
-    └── greet.ts      # 예시 Tool (교체해서 사용)
+├── index.ts              # 서버 진입점 — Tool/Prompt 등록 + 트랜스포트
+├── config.ts             # 환경변수 설정
+├── helpers.ts            # ok() / err() 응답 헬퍼
+├── tools/
+│   └── greet.ts          # 예시 Tool + annotations (교체해서 사용)
+└── prompts/
+    └── hello.ts          # 예시 Prompt (교체해서 사용)
 tests/
-└── greet.test.js     # 빌드 결과물 테스트
+├── greet.test.js         # Tool 테스트
+├── helpers.test.js       # 헬퍼 테스트
+└── hello.test.js         # Prompt 테스트
 ```
 
 ## 스크립트

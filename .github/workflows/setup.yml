@@ -37,6 +37,9 @@ jobs:
           - [ ] Update `package.json` — change `name`, `description`, `bin` key
           - [ ] Update server name and version in `src/index.ts`
           - [ ] Replace the example `greet` tool with your own tools in `src/tools/`
+          - [ ] Replace the example `hello` prompt with your own prompts in `src/prompts/`
+          - [ ] Set safety annotations on each tool (readOnly, destructive, idempotent, openWorld)
+          - [ ] Update `src/config.ts` with your environment variables
           - [ ] Update tests in `tests/`
 
           ## npm Publishing (OIDC — no tokens needed)
