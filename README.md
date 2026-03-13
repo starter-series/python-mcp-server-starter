@@ -47,6 +47,8 @@ npm run dev
 
 ## Adding Tools
 
+> **Tool names must be globally unique** across all MCP servers a client connects to. Prefix with your module name (e.g., `mymodule_action` instead of `action`).
+
 Create `src/tools/your-tool.ts`:
 
 ```ts
@@ -116,6 +118,33 @@ Register in `src/index.ts`:
 import * as yourPrompt from './prompts/your-prompt.js';
 server.prompt(yourPrompt.name, yourPrompt.description, yourPrompt.schema, yourPrompt.handler);
 ```
+
+## Adding Resources
+
+```ts
+server.resource("example://data", "Example Resource", async () => ({
+  contents: [{ uri: "example://data", text: "Resource content here" }]
+}));
+```
+
+## HTTP Transport
+
+This starter uses **stdio** (the standard for local MCP servers). If you need HTTP transport — for registries like [Smithery](https://smithery.ai)/[mcp.so](https://mcp.so) or remote deployments — use `StreamableHTTPServerTransport` with Express:
+
+```ts
+import express from 'express';
+import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
+
+const app = express();
+app.post('/mcp', async (req, res) => {
+  const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
+  await server.connect(transport);
+  await transport.handleRequest(req, res);
+});
+app.listen(3000);
+```
+
+See the [MCP SDK docs](https://github.com/modelcontextprotocol/typescript-sdk) for full details.
 
 ## Testing Locally
 

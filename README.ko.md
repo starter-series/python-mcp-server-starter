@@ -47,6 +47,8 @@ npm run dev
 
 ## Tool 추가
 
+> **Tool 이름은 클라이언트에 연결된 모든 MCP 서버에서 전역 고유해야 합니다.** 모듈 접두사를 붙이세요 (예: `action` 대신 `mymodule_action`).
+
 `src/tools/your-tool.ts` 생성:
 
 ```ts
@@ -116,6 +118,33 @@ export function handler({ param }: { param?: string }) {
 import * as yourPrompt from './prompts/your-prompt.js';
 server.prompt(yourPrompt.name, yourPrompt.description, yourPrompt.schema, yourPrompt.handler);
 ```
+
+## Resource 추가
+
+```ts
+server.resource("example://data", "Example Resource", async () => ({
+  contents: [{ uri: "example://data", text: "리소스 내용" }]
+}));
+```
+
+## HTTP 트랜스포트
+
+이 스타터는 **stdio**를 사용합니다 (로컬 MCP 서버의 표준). HTTP 트랜스포트가 필요한 경우 — [Smithery](https://smithery.ai)/[mcp.so](https://mcp.so) 같은 레지스트리 등록이나 원격 배포 — `StreamableHTTPServerTransport` + Express 패턴을 사용하세요:
+
+```ts
+import express from 'express';
+import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
+
+const app = express();
+app.post('/mcp', async (req, res) => {
+  const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
+  await server.connect(transport);
+  await transport.handleRequest(req, res);
+});
+app.listen(3000);
+```
+
+자세한 내용은 [MCP SDK 문서](https://github.com/modelcontextprotocol/typescript-sdk) 참고.
 
 ## 로컬 테스트
 

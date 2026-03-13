@@ -24,3 +24,4 @@ This template includes several security measures:
 - Keep dependencies up to date via Dependabot PRs
 - Validate all tool inputs with Zod schemas
 - Use environment variables for sensitive configuration
+- **Shell command injection** — If your MCP tools execute shell commands, always escape or sanitize user input. Never pass raw tool arguments to `child_process.exec()` or template strings in shell commands. Use `execFile()` with explicit argument arrays instead.

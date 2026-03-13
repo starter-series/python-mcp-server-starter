@@ -45,6 +45,8 @@ jobs:
           cache: 'npm'
           registry-url: 'https://registry.npmjs.org'
 
+      # WARNING: If your package.json has "os": ["darwin"], npm ci will fail with
+      # EBADPLATFORM on this ubuntu runner. Change to `runs-on: macos-latest` if needed.
       - name: Install dependencies
         run: npm ci
 
@@ -52,6 +54,10 @@ jobs:
         run: npm run build
 
       - name: Publish with provenance
+        # This workflow uses OIDC trusted publishing — no NPM_TOKEN secret needed.
+        # If you prefer classic token auth instead of OIDC, add:
+        #   env:
+        #     NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm publish --provenance --access public
 
       - name: Create GitHub Release
