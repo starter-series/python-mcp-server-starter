@@ -6,7 +6,7 @@
 
 MCP 서버를 만들고, push로 배포하세요. 시크릿 0개.
 
-[![CI](https://github.com/heznpc/mcp-server-starter/actions/workflows/ci.yml/badge.svg)](https://github.com/heznpc/mcp-server-starter/actions/workflows/ci.yml)
+[![CI](https://github.com/starter-series/mcp-server-starter/actions/workflows/ci.yml/badge.svg)](https://github.com/starter-series/mcp-server-starter/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![npm version](https://img.shields.io/npm/v/my-mcp-server.svg)](https://www.npmjs.com/package/my-mcp-server)
 
@@ -16,9 +16,9 @@ MCP 서버를 만들고, push로 배포하세요. 시크릿 0개.
 
 ---
 
-> **[Starter Series](https://github.com/heznpc/starter-series)** — 매번 AI한테 CI/CD 설명하지 마세요. Clone하고 바로 시작하세요.
+> **[Starter Series](https://github.com/starter-series/starter-series)** — 매번 AI한테 CI/CD 설명하지 마세요. Clone하고 바로 시작하세요.
 >
-> [Docker 배포](https://github.com/heznpc/docker-deploy-starter) · [Discord 봇](https://github.com/heznpc/discord-bot-starter) · [Telegram 봇](https://github.com/heznpc/telegram-bot-starter) · [브라우저 확장](https://github.com/heznpc/browser-extension-starter) · [Electron 앱](https://github.com/heznpc/electron-app-starter) · [npm 패키지](https://github.com/heznpc/npm-package-starter) · [React Native](https://github.com/heznpc/react-native-starter) · [VS Code 확장](https://github.com/heznpc/vscode-extension-starter) · **MCP 서버**
+> [Docker 배포](https://github.com/starter-series/docker-deploy-starter) · [Discord 봇](https://github.com/starter-series/discord-bot-starter) · [Telegram 봇](https://github.com/starter-series/telegram-bot-starter) · [브라우저 확장](https://github.com/starter-series/browser-extension-starter) · [Electron 앱](https://github.com/starter-series/electron-app-starter) · [npm 패키지](https://github.com/starter-series/npm-package-starter) · [React Native](https://github.com/starter-series/react-native-starter) · [VS Code 확장](https://github.com/starter-series/vscode-extension-starter) · **MCP 서버**
 
 ---
 
@@ -37,7 +37,7 @@ MCP 서버를 만들고, push로 배포하세요. 시크릿 0개.
 ## 빠른 시작
 
 ```bash
-git clone https://github.com/heznpc/mcp-server-starter.git my-mcp-server
+git clone https://github.com/starter-series/mcp-server-starter.git my-mcp-server
 cd my-mcp-server
 rm -rf .git && git init
 
