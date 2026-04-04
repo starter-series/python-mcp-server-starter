@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { createRequire } from 'node:module';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
@@ -30,8 +31,22 @@ server.resource("example://data", "Example Resource", async () => ({
 server.prompt(hello.name, hello.description, hello.schema, hello.handler);
 
 const transport = new StdioServerTransport();
-await server.connect(transport);
+
+try {
+  await server.connect(transport);
+} catch (error) {
+  console.error('Failed to connect MCP server:', error);
+  process.exit(1);
+}
 
 if (config.debug) {
   console.error('MCP server running on stdio');
 }
+
+const shutdown = async () => {
+  await transport.close();
+  process.exit(0);
+};
+
+process.on('SIGINT', shutdown);
+process.on('SIGTERM', shutdown);

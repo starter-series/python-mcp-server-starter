@@ -13,7 +13,7 @@ const greetings: Record<string, string> = {
   ja: 'フレンドリーな挨拶を書いてください。',
 };
 
-export function handler({ language }: { language?: string }) {
+export function handler({ language }: { language?: 'en' | 'ko' | 'ja' }) {
   const lang = language ?? 'en';
   return {
     description,
