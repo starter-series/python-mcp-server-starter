@@ -1,7 +1,7 @@
 """Allow running as ``python -m my_mcp_server``."""
 
-import sys
 import logging
+import sys
 
 from my_mcp_server.server import main
 
