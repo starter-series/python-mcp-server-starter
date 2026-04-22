@@ -22,7 +22,7 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
 ]
 dependencies = [
-    "mcp>=1.6,<2",
+    "mcp>=1.27.0,<2",
 ]
 
 [project.scripts]
