@@ -33,13 +33,13 @@ mcp = FastMCP(
 # ---------------------------------------------------------------------------
 
 
-def ok(data: str | dict) -> dict:
+def ok(data: str | dict[str, object]) -> dict[str, object]:
     """Return a successful tool response."""
     text = data if isinstance(data, str) else str(data)
     return {"content": [{"type": "text", "text": text}]}
 
 
-def err(message: str) -> dict:
+def err(message: str) -> dict[str, object]:
     """Return an error tool response."""
     return {"content": [{"type": "text", "text": message}], "isError": True}
 
