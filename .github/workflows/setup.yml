@@ -1,0 +1,60 @@
+name: Template Setup
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  setup:
+    if: github.run_number == 1
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Check if template
+        id: check
+        run: |
+          NAME=$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml','rb'))['project']['name'])")
+          if [ "$NAME" = "my-mcp-server" ]; then
+            echo "is_template=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "is_template=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create setup checklist
+        if: steps.check.outputs.is_template == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue create \
+            --title "Setup: Configure your Python MCP server" \
+            --body "$(cat <<'EOF'
+          Welcome! You've created a new project from **python-mcp-server-starter**.
+
+          ## Required
+          - [ ] Update `pyproject.toml` — change `name`, `description`, `authors`, `[project.scripts]` entry
+          - [ ] Rename `src/my_mcp_server/` package directory to match your project name
+          - [ ] Update imports and `pyproject.toml` scripts after rename
+          - [ ] Replace the example `greet` tool with your own tools in `src/<your_pkg>/tools/`
+          - [ ] Set safety annotations on each tool (readOnly, destructive, idempotent, openWorld)
+          - [ ] Update tests in `tests/`
+
+          ## PyPI Publishing (OIDC — no tokens needed)
+          - [ ] Create a PyPI account at [pypi.org](https://pypi.org)
+          - [ ] Configure a PyPI [Trusted Publisher](https://docs.pypi.org/trusted-publishers/) pointing to this repo's `cd.yml`
+          - [ ] Create GitHub Environment named `pypi`
+
+          ## Testing Locally
+          - [ ] Install editable: `pip install -e ".[dev]"`
+          - [ ] Run: `python -m my_mcp_server`
+          - [ ] Test with MCP Inspector: `npx @modelcontextprotocol/inspector python -m my_mcp_server`
+          - [ ] Add to Claude Desktop config (see README)
+
+          ## Recommended
+          - [ ] Add environment variables to `.env` if your tools need API keys
+          - [ ] Write comprehensive tests for all tools
+          - [ ] Delete this issue when done
+          EOF
+          )"
