@@ -26,7 +26,9 @@ Build your MCP server. One-click publish. Zero secrets needed.
 
 - **MCP SDK** — `mcp` (FastMCP) with stdio transport
 - **Python 3.11+** — Type hints, async/await, hatchling build
+- **All three MCP primitives** — Tools, Resources, and Prompts with working examples
 - **Safety Annotations** — readOnly/destructive/idempotent hints on every tool
+- **Validated Prompts** — pydantic `@validate_call` rejects bad args before the handler runs
 - **Response Helpers** — `ok()` and `err()` for consistent tool responses
 - **Config** — Environment variable parsing pattern
 - **CI** — gitleaks, ruff, license compliance, pytest (3.11/3.12/3.13)
@@ -99,6 +101,60 @@ from my_mcp_server.tools.your_tool import register
 register(mcp)
 ```
 
+## Adding Resources
+
+Resources expose read-only data to the client at a stable URI (contrast with Tools, which perform actions).
+
+See `src/my_mcp_server/resources/server_info.py` for the example. Pattern:
+
+```python
+from mcp.server.fastmcp import FastMCP
+
+
+def register(mcp: FastMCP) -> None:
+    @mcp.resource(
+        "info://your/resource",
+        name="your-resource",
+        description="What this resource exposes.",
+        mime_type="application/json",
+    )
+    async def your_resource() -> str:
+        return "..."  # str, bytes, or JSON-serializable object
+```
+
+Then in `server.py`:
+
+```python
+from my_mcp_server.resources.your_resource import register as register_your_resource
+register_your_resource(mcp)
+```
+
+## Adding Prompts
+
+Prompts are reusable, parameterized message templates. Arguments are validated via pydantic before the handler runs.
+
+See `src/my_mcp_server/prompts/code_review.py` for the example. Pattern:
+
+```python
+from typing import Annotated, Literal
+
+from mcp.server.fastmcp import FastMCP
+from mcp.server.fastmcp.prompts.base import UserMessage
+from pydantic import Field, validate_call
+
+
+@validate_call
+def your_prompt(
+    mode: Literal["short", "long"],
+    topic: Annotated[str, Field(min_length=1)],
+) -> list[UserMessage]:
+    return [UserMessage(content=f"Write a {mode} note about {topic}.")]
+
+
+def register(mcp: FastMCP) -> None:
+    mcp.prompt(name="your-prompt", title="Your Prompt")(your_prompt)
+```
+
 ## Configuration
 
 Environment variables:
@@ -150,11 +206,19 @@ src/my_mcp_server/
 ├── __init__.py          # Version
 ├── __main__.py          # python -m entry point
 ├── server.py            # FastMCP server + inline tools + helpers
-└── tools/
+├── tools/
+│   ├── __init__.py
+│   └── greet.py          # Example modular tool
+├── resources/
+│   ├── __init__.py
+│   └── server_info.py    # Example resource (info://server/status)
+└── prompts/
     ├── __init__.py
-    └── greet.py          # Example modular tool
+    └── code_review.py    # Example prompt (validated args)
 tests/
-└── test_tools.py         # Tool tests
+├── test_tools.py         # Tool tests
+├── test_server_info.py   # Resource tests
+└── test_code_review.py   # Prompt tests
 .github/
 ├── workflows/
 │   ├── ci.yml            # Lint, test, security

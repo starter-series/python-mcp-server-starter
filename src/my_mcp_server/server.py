@@ -10,6 +10,9 @@ import os
 from mcp.server.fastmcp import FastMCP
 from mcp.types import ToolAnnotations
 
+from my_mcp_server.prompts.code_review import register as register_code_review
+from my_mcp_server.resources.server_info import register as register_server_info
+
 logger = logging.getLogger("my_mcp_server")
 
 # ---------------------------------------------------------------------------
@@ -76,6 +79,20 @@ async def greet(name: str) -> str:
 #   register(mcp)
 #
 # See tools/greet.py for the modular pattern.
+
+
+# ---------------------------------------------------------------------------
+# Resources — expose data to the client at a stable URI
+# ---------------------------------------------------------------------------
+
+register_server_info(mcp)
+
+
+# ---------------------------------------------------------------------------
+# Prompts — reusable, parameterized message templates
+# ---------------------------------------------------------------------------
+
+register_code_review(mcp)
 
 
 # ---------------------------------------------------------------------------
