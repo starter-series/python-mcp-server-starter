@@ -37,13 +37,22 @@ Build your MCP server. One-click publish. Zero secrets needed.
 
 ## Quick Start
 
-```bash
-git clone https://github.com/starter-series/python-mcp-server-starter.git my-mcp-server
-cd my-mcp-server
-rm -rf .git && git init
+**Via [create-starter](https://github.com/starter-series/create-starter)** (recommended):
 
-pip install -e ".[dev]"
-python -m my_mcp_server
+```bash
+npx @starter-series/create my-mcp-server --template mcp-server-python
+cd my-mcp-server
+python -m venv .venv && source .venv/bin/activate
+pip install -e '.[dev]'
+```
+
+**Or clone directly:**
+
+```bash
+git clone https://github.com/starter-series/python-mcp-server-starter my-mcp-server
+cd my-mcp-server
+python -m venv .venv && source .venv/bin/activate
+pip install -e '.[dev]'
 ```
 
 ## Adding Tools
