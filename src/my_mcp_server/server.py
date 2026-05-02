@@ -6,9 +6,11 @@ Add your own tools in the tools/ directory following the greet.py pattern.
 
 import logging
 import os
+from typing import Annotated
 
 from mcp.server.fastmcp import FastMCP
 from mcp.types import ToolAnnotations
+from pydantic import Field
 
 from my_mcp_server.prompts.code_review import register as register_code_review
 from my_mcp_server.resources.server_info import register as register_server_info
@@ -60,14 +62,22 @@ def err(message: str) -> dict[str, object]:
         openWorldHint=False,
     ),
 )
-async def greet(name: str) -> str:
+async def greet(
+    name: Annotated[
+        str,
+        Field(
+            min_length=1,
+            max_length=200,
+            description="Name to greet (1–200 characters).",
+        ),
+    ],
+) -> str:
     """Greet someone by name.
 
-    Args:
-        name: Name to greet.
-
-    Returns:
-        A greeting message.
+    The Annotated[..., Field(...)] form propagates the constraint into
+    FastMCP's generated JSON schema, so empty strings and oversized inputs
+    are rejected by the protocol layer before the handler runs. The TS
+    sibling enforces the same shape via Zod.
     """
     logger.info("Greeting %s", name)
     return f"Hello, {name}!"
