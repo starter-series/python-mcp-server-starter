@@ -123,6 +123,30 @@ def register(mcp: FastMCP) -> None:
     mcp.prompt(name="your-prompt", title="Your Prompt")(your_prompt)
 ```
 
+## 설정
+
+환경 변수:
+
+| 변수 | 기본값 | 설명 |
+|------|--------|------|
+| `MCP_DEBUG` | `false` | 디버그 로깅 활성화 |
+| `LOG_LEVEL` | `INFO` | 로그 레벨 (DEBUG/INFO/WARNING/ERROR) |
+
+직접 추가는 `server.py`에.
+
+## 로컬 테스트
+
+```bash
+# 테스트 실행
+pytest -v
+
+# 린트
+ruff check .
+
+# 서버 실행 (stdio)
+python -m my_mcp_server
+```
+
 ## CI/CD
 
 ### CI (push/PR마다 실행)
@@ -140,6 +164,47 @@ def register(mcp: FastMCP) -> None:
 1. `pyproject.toml`에서 버전 올리기
 2. **Actions → Publish to PyPI → Run workflow**
 3. OIDC가 인증 처리 — `PYPI_TOKEN` 시크릿 불필요
+
+설정 가이드: [PyPI OIDC trusted publishing 문서](https://docs.pypi.org/trusted-publishers/creating-a-project-through-oidc/)
+
+## 프로젝트 구조
+
+```
+src/my_mcp_server/
+├── __init__.py          # 버전
+├── __main__.py          # python -m 진입점
+├── server.py            # FastMCP 서버 + 인라인 툴 + 헬퍼
+├── tools/
+│   ├── __init__.py
+│   └── greet.py          # 모듈형 툴 예시
+├── resources/
+│   ├── __init__.py
+│   └── server_info.py    # Resource 예시 (info://server/status)
+└── prompts/
+    ├── __init__.py
+    └── code_review.py    # Prompt 예시 (인자 검증 포함)
+tests/
+├── test_tools.py         # 툴 테스트
+├── test_server_info.py   # Resource 테스트
+└── test_code_review.py   # Prompt 테스트
+.github/
+├── workflows/
+│   ├── ci.yml            # 린트, 테스트, 보안
+│   ├── cd.yml            # PyPI OIDC 배포
+│   ├── stale.yml         # Stale 이슈 관리
+│   └── maintenance.yml   # 주간 헬스 체크
+└── dependabot.yml        # 의존성 업데이트
+```
+
+## 스크립트
+
+```bash
+pip install -e ".[dev]"   # dev 의존성 포함 설치
+python -m my_mcp_server   # 서버 실행
+pytest -v                 # 테스트 실행
+ruff check .              # 린트
+ruff format .             # 포맷
+```
 
 ## 라이선스
 
