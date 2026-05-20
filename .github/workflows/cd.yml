@@ -16,8 +16,9 @@ jobs:
     runs-on: ubuntu-latest
     environment: pypi
     permissions:
-      contents: write
-      id-token: write
+      contents: write       # softprops/action-gh-release needs this to create the Release
+      id-token: write       # OIDC for PyPI trusted publishing + sigstore attestations
+      attestations: write   # actions/attest-build-provenance writes to the repo's attestation store
     steps:
       - uses: actions/checkout@v6
         with:
@@ -46,13 +47,25 @@ jobs:
           pip install build
           python -m build
 
+      - name: Generate SLSA build provenance attestation
+        # Produces a sigstore-signed attestation linking the GitHub Actions run
+        # to the built wheel + sdist. Surfaces on the PyPI release page as
+        # "Build attestations: verified" once PyPI ingests it.
+        uses: actions/attest-build-provenance@96278af6caaf10aea03fd8d33a09a777ca52d62f  # v3.2.0
+        with:
+          subject-path: 'dist/*'
+
       - name: Publish to PyPI
+        # Pinned to floating `release/v1` per pypa guidance — the action
+        # self-updates within v1 and pypa rotates secrets behind that ref.
         uses: pypa/gh-action-pypi-publish@release/v1
         # Uses OIDC trusted publishing — no PYPI_TOKEN secret needed.
         # Configure at: https://pypi.org/manage/project/my-mcp-server/settings/publishing/
+        with:
+          attestations: true
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda  # v3.0.0
         with:
           tag_name: v${{ steps.pkg.outputs.version }}
           name: v${{ steps.pkg.outputs.version }}

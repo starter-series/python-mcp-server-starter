@@ -68,7 +68,7 @@ async def greet(
         Field(
             min_length=1,
             max_length=200,
-            description="Name to greet (1–200 characters).",
+            description="Name to greet (1-200 characters).",
         ),
     ],
 ) -> str:

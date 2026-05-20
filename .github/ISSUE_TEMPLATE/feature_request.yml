@@ -1,0 +1,43 @@
+name: Feature request
+description: Suggest a change to this starter template.
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Note: this starter is intentionally small. Features that don't apply
+        to >50% of clones are usually better as a separate example repo.
+        See `README.md` "What You Get" for current scope.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve for someone cloning the starter?
+      placeholder: |
+        When I clone this and add my own tool, I have to ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+      description: Be concrete. Files, behaviors, defaults.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Why not solve this with documentation, a separate example, or a downstream library?
+
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope check
+      options:
+        - label: This applies to most clones of the starter (not just my use case).
+          required: true
+        - label: I've checked the existing `What You Get` list and this isn't already covered.
+          required: true

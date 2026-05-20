@@ -29,11 +29,15 @@ dependencies = [
 my-mcp-server = "my_mcp_server.server:main"
 
 [project.optional-dependencies]
+# Dev tools are major-bounded so a future breaking release of ruff/mypy/pytest
+# can't silently turn CI red. Dependabot's `lint` / `test` groups bump the
+# upper bound when a new major ships and we've reviewed the changelog.
 dev = [
-    "pytest",
-    "pytest-asyncio",
-    "ruff",
-    "mypy",
+    "pytest>=8,<10",
+    "pytest-asyncio>=1,<2",
+    "pytest-cov>=6,<8",
+    "ruff>=0.15,<1",
+    "mypy>=2,<3",
 ]
 
 [tool.ruff]
@@ -41,7 +45,16 @@ target-version = "py311"
 line-length = 100
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "N", "W", "UP"]
+# E/F/W/I/N/UP — standard correctness + style + import order + pep8-naming + pyupgrade.
+# B           — flake8-bugbear: common Python bugs (mutable defaults, etc.).
+# S           — flake8-bandit: security antipatterns (subprocess shell=True, etc.).
+# ASYNC       — async-specific antipatterns (blocking calls in async funcs).
+# RUF, SIM    — ruff-specific + simplifications.
+select = ["E", "F", "I", "N", "W", "UP", "B", "S", "ASYNC", "RUF", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+# pytest's primary API is `assert` — S101 fires on every test line otherwise.
+"tests/**" = ["S101"]
 
 [tool.mypy]
 python_version = "3.11"
@@ -59,3 +72,17 @@ disallow_untyped_defs = false
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+# --cov-fail-under matches the baseline measured at sweep time (~71%). Bump
+# this number when coverage improves — never lower it without justification.
+addopts = "--cov=my_mcp_server --cov-report=term-missing --cov-fail-under=70"
+
+[tool.coverage.run]
+branch = true
+source = ["my_mcp_server"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.:",
+    "raise NotImplementedError",
+]
