@@ -2,13 +2,6 @@
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability, please report it responsibly:
-
-1. **Do NOT** open a public issue
-2. Email the maintainer or use GitHub's private vulnerability reporting
-
-## Reporting
-
 Use [GitHub's private vulnerability reporting](https://github.com/starter-series/python-mcp-server-starter/security/advisories/new)
 (Security tab → Report a vulnerability). Do **not** open a public issue.
 
