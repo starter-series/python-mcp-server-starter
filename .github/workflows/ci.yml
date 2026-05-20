@@ -79,5 +79,7 @@ jobs:
       - name: Type check
         run: mypy src/
 
-      - name: Test
+      - name: Test (with coverage)
+        # --cov / --cov-fail-under live in pyproject.toml [tool.pytest.ini_options]
+        # so local `pytest` invocations match CI exactly.
         run: pytest -v

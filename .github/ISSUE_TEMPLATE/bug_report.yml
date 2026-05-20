@@ -1,0 +1,52 @@
+name: Bug report
+description: Something in this starter template is broken or behaves unexpectedly.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! Please confirm the bug is in **the starter template itself**,
+        not in your customized fork. For runtime issues in your own MCP server, check the
+        [MCP SDK docs](https://modelcontextprotocol.io) first.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear description of the bug + what you expected instead.
+      placeholder: |
+        I ran `pip install -e ".[dev]"` then `pytest`, and ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction steps
+      description: Minimal steps to reproduce. Paste shell commands if relevant.
+      render: bash
+    validations:
+      required: true
+
+  - type: input
+    id: python-version
+    attributes:
+      label: Python version
+      placeholder: "e.g. 3.13.1"
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: "e.g. macOS 15.2, Ubuntu 24.04"
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs / output
+      description: Paste any stack traces, error messages, or CI output.
+      render: text

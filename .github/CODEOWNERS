@@ -1,0 +1,4 @@
+# CODEOWNERS — auto-assigns @heznpc to every PR for review.
+# Solo-dev repo; this exists so Dependabot's grouped bump PRs and outside
+# contributions land in the right inbox without manual triage.
+* @heznpc
