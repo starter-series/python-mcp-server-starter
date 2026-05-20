@@ -13,3 +13,7 @@ release feed without duplicating maintenance.
 
 ## [Unreleased]
 
+### Fixed
+- Stop tracking `.coverage` and add coverage artifacts (`.coverage*`, `htmlcov/`,
+  `coverage.xml`) to `.gitignore` so local test runs no longer pollute commits.
+
