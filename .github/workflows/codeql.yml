@@ -18,10 +18,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # `python` scans src/ for code-level issues.
         # `actions` scans .github/workflows/ for workflow-level issues
-        #   (untrusted input in `run:`, script injection, missing permissions,
-        #    etc.). Available since CodeQL 2.20.
+        # (script injection, missing permissions, etc.).
         language: [python, actions]
     steps:
       - uses: actions/checkout@v6
@@ -32,8 +30,7 @@ jobs:
           languages: ${{ matrix.language }}
 
       - name: Autobuild
-        # `actions` language doesn't need a build step but autobuild is a no-op
-        # there, so leave it for simplicity.
+        if: matrix.language == 'python'
         uses: github/codeql-action/autobuild@v4
 
       - name: Perform CodeQL Analysis

@@ -7,7 +7,7 @@
 - [ ] `ruff check .` passes
 - [ ] `ruff format --check .` passes
 - [ ] `mypy src/` passes
-- [ ] `pytest` passes (coverage >= 70%)
+- [ ] `pytest` passes locally; CI coverage gate (see `ci.yml`) will enforce the threshold
 - [ ] CHANGELOG.md `[Unreleased]` updated if user-visible
 - [ ] No `.coverage`, `.env`, secrets, or build artifacts committed
 
