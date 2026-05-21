@@ -3,6 +3,11 @@ name: Publish to PyPI
 on:
   workflow_dispatch:
 
+# Deny-by-default at workflow level; each job opts into exactly what it needs.
+# Flagged by CodeQL `actions/missing-workflow-permissions`.
+permissions:
+  contents: read
+
 concurrency:
   group: deploy
   cancel-in-progress: false

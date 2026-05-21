@@ -29,7 +29,6 @@ Build your MCP server. One-click publish. Zero secrets needed.
 - **All three MCP primitives** — Tools, Resources, and Prompts with working examples
 - **Safety Annotations** — readOnly/destructive/idempotent hints on every tool
 - **Validated Prompts** — pydantic `@validate_call` rejects bad args before the handler runs
-- **Response Helpers** — `ok()` and `err()` for consistent tool responses
 - **Config** — Environment variable parsing pattern
 - **CI** — gitleaks, ruff, license compliance, pytest (3.11/3.12/3.13)
 - **CD** — OIDC trusted publishing to PyPI (zero secrets needed)

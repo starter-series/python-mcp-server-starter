@@ -27,7 +27,6 @@ MCP 서버를 만들고, 원클릭 배포. 시크릿 불필요.
 - **MCP 3대 프리미티브** — Tools, Resources, Prompts 예제 전부 포함
 - **Safety Annotations** — 모든 도구에 readOnly/destructive/idempotent 힌트
 - **검증된 Prompt** — pydantic `@validate_call`로 핸들러 실행 전 인자 검증
-- **응답 헬퍼** — `ok()`, `err()`로 일관된 응답
 - **CI** — gitleaks, ruff, 라이선스 검증, pytest (3.11/3.12/3.13)
 - **CD** — OIDC trusted publishing으로 PyPI 배포 (시크릿 불필요)
 - **Dependabot** — 의존성 + GitHub Actions 자동 업데이트

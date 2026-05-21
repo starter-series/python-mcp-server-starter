@@ -34,23 +34,8 @@ mcp = FastMCP(
 
 
 # ---------------------------------------------------------------------------
-# Helpers — use ok() and err() for consistent tool responses
-# ---------------------------------------------------------------------------
-
-
-def ok(data: str | dict[str, object]) -> dict[str, object]:
-    """Return a successful tool response."""
-    text = data if isinstance(data, str) else str(data)
-    return {"content": [{"type": "text", "text": text}]}
-
-
-def err(message: str) -> dict[str, object]:
-    """Return an error tool response."""
-    return {"content": [{"type": "text", "text": message}], "isError": True}
-
-
-# ---------------------------------------------------------------------------
-# Tools — add your own in tools/ and import here
+# Tools — FastMCP wraps return values automatically (return value for success,
+# raise for errors). Add your own in tools/ and import here.
 # ---------------------------------------------------------------------------
 
 
