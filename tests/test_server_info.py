@@ -63,3 +63,60 @@ async def test_registered_on_server() -> None:
     resources = await mcp.list_resources()
     uris = [str(r.uri) for r in resources]
     assert URI in uris
+
+
+# --- wheel-install fallback path ---------------------------------------------
+# When the package is installed from a wheel, pyproject.toml is NOT shipped,
+# so `_read_pyproject()` returns None and `_server_metadata()` must fall back
+# to `importlib.metadata.version()`. The tests above all exercise the source
+# tree (where pyproject.toml IS reachable) — without these two cases, the
+# production install path is 0% covered.
+
+
+async def test_falls_back_to_importlib_metadata_when_pyproject_missing(
+    monkeypatch,
+) -> None:
+    """Wheel install: _read_pyproject() returns None, version comes from metadata."""
+    from my_mcp_server.resources import server_info as mod
+
+    monkeypatch.setattr(mod, "_read_pyproject", lambda: None)
+    payload = json.loads(await mod.server_info())
+
+    # Package is installed editable in tests; importlib.metadata can find it.
+    project = _pyproject_project()
+    assert payload["name"] == "my-mcp-server"
+    assert payload["version"] == project["version"]
+
+
+async def test_falls_back_to_zero_version_when_package_not_installed(
+    monkeypatch,
+) -> None:
+    """Edge of the edge: pyproject missing AND importlib.metadata can't find
+    the dist. Should return '0.0.0' instead of raising PackageNotFoundError."""
+    from my_mcp_server.resources import server_info as mod
+
+    def raise_not_found(_name: str) -> str:
+        raise mod.PackageNotFoundError("simulated wheel-install-without-metadata")
+
+    monkeypatch.setattr(mod, "_read_pyproject", lambda: None)
+    monkeypatch.setattr(mod, "version", raise_not_found)
+
+    payload = json.loads(await mod.server_info())
+    assert payload["version"] == "0.0.0"
+
+
+def test_read_pyproject_returns_none_when_project_table_missing(tmp_path, monkeypatch) -> None:
+    """Walk-up finds a pyproject.toml with no [project] table — exit path
+    at line 41 (the `return None` inside the `is_file` branch)."""
+    from my_mcp_server.resources import server_info as mod
+
+    # Build a fake directory tree: tmp_path/pkg/server_info.py with a
+    # pyproject.toml at tmp_path that lacks [project].
+    pkg = tmp_path / "pkg"
+    pkg.mkdir()
+    (tmp_path / "pyproject.toml").write_text("[build-system]\nrequires = []\n")
+    fake_file = pkg / "server_info.py"
+    fake_file.write_text("")
+
+    monkeypatch.setattr(mod, "__file__", str(fake_file))
+    assert mod._read_pyproject() is None

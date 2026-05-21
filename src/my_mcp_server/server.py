@@ -68,12 +68,11 @@ async def greet(
     return f"Hello, {name}!"
 
 
-# To add more tools, create files in tools/ and register them:
+# To add more tools, either decorate inline above or create a module under
+# tools/ exposing a `register(mcp)` function and call it here, e.g.:
 #
 #   from my_mcp_server.tools.your_tool import register
 #   register(mcp)
-#
-# See tools/greet.py for the modular pattern.
 
 
 # ---------------------------------------------------------------------------

@@ -22,9 +22,50 @@ This template includes several security measures:
   `RUF`, `SIM`, plus correctness/style/import-order/naming/pyupgrade
 - **SHA-pinned third-party actions** — `softprops/action-gh-release`,
   `actions/stale`, `actions/github-script` are pinned to commit SHAs, not tags
-- **Repo-side toggles enabled** — Secret scanning + push protection (blocks
-  commits that contain leaked secrets) + Dependabot security updates +
-  branch protection on `main` (required CI checks before merge)
+
+## What clones inherit vs. what they don't
+
+Everything above is **code-level** — it ships in the repo and a clone gets
+it by virtue of having the same files. The items below are **runtime
+GitHub settings** that GitHub does *not* copy when you create a new repo
+from a template. **You must enable them on your fork.**
+
+Run these `gh` calls (or use the web UI: Settings → Security/Branches) on
+your new repo:
+
+```bash
+REPO=your-org/your-repo
+
+# Secret scanning + push protection (public repos: free; private: needs GHAS)
+gh api -X PATCH "repos/$REPO" \
+  -f 'security_and_analysis[secret_scanning][status]=enabled' \
+  -f 'security_and_analysis[secret_scanning_push_protection][status]=enabled'
+
+# Dependabot security updates + vulnerability alerts
+gh api -X PUT "repos/$REPO/vulnerability-alerts"
+gh api -X PUT "repos/$REPO/automated-security-fixes"
+
+# Branch protection — adjust required checks to match your CI job names
+gh api -X PUT "repos/$REPO/branches/main/protection" --input - <<'JSON'
+{
+  "required_status_checks": {
+    "strict": false,
+    "checks": [
+      {"context": "security"}, {"context": "licenses"},
+      {"context": "test (3.11)"}, {"context": "test (3.12)"}, {"context": "test (3.13)"}
+    ]
+  },
+  "enforce_admins": false,
+  "required_pull_request_reviews": null,
+  "restrictions": null,
+  "allow_force_pushes": false,
+  "allow_deletions": false
+}
+JSON
+
+# Auto-merge + auto-delete merged branches
+gh api -X PATCH "repos/$REPO" -F allow_auto_merge=true -F delete_branch_on_merge=true
+```
 
 ## Best Practices
 
