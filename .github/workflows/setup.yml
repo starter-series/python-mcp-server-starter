@@ -4,6 +4,10 @@ on:
   push:
     branches: [main]
 
+# Deny-by-default at workflow level; the `setup` job opts into `issues: write` only.
+permissions:
+  contents: read
+
 jobs:
   setup:
     if: github.run_number == 1
