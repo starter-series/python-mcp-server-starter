@@ -44,3 +44,26 @@ async def test_greet_accepts_boundary_lengths():
     assert await _validated_greet(name="a") == "Hello, a!"
     long_name = "a" * 200
     assert await _validated_greet(name=long_name) == f"Hello, {long_name}!"
+
+
+# --- protocol-level contract --------------------------------------------------
+# Parallels test_server_info.py::test_registered_on_server and
+# test_code_review.py::test_registered_on_server — without this, the tool's
+# JSON Schema generation (the actual MCP wire contract) is never exercised.
+
+
+async def test_greet_registered_on_server():
+    """The greet tool is wired into the server and its JSON Schema reflects
+    the Annotated[..., Field(min_length, max_length)] constraints."""
+    from my_mcp_server.server import mcp
+
+    tools = await mcp.list_tools()
+    by_name = {t.name: t for t in tools}
+    assert "greet" in by_name, f"greet missing from list_tools(); got {list(by_name)}"
+
+    schema = by_name["greet"].inputSchema
+    name_prop = schema["properties"]["name"]
+    assert name_prop["type"] == "string"
+    assert name_prop["minLength"] == 1
+    assert name_prop["maxLength"] == 200
+    assert "name" in schema["required"]
