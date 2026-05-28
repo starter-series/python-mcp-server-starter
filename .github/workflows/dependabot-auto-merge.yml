@@ -25,6 +25,10 @@ jobs:
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # `gh` resolves the target repo via this env var when no checkout
+          # is present (no `.git` in workdir). Without it `gh` errors out
+          # with `fatal: not a git repository`.
+          GH_REPO: ${{ github.repository }}
 
       - name: Label major updates for manual review
         if: steps.meta.outputs.update-type == 'version-update:semver-major'
@@ -46,3 +50,6 @@ jobs:
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # See GH_REPO note above — same `not a git repository` failure
+          # observed on PR #35 before this env var was added.
+          GH_REPO: ${{ github.repository }}
