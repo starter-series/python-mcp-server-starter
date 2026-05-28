@@ -82,32 +82,11 @@ async def your_tool(input: str) -> str:
 
 ### Modular (recommended for larger servers)
 
-Create `src/my_mcp_server/tools/your_tool.py`:
-
-```python
-from mcp.server.fastmcp import FastMCP
-from mcp.types import ToolAnnotations
-
-
-def register(mcp: FastMCP) -> None:
-    @mcp.tool(
-        annotations=ToolAnnotations(
-            readOnlyHint=True,
-            destructiveHint=False,
-            idempotentHint=True,
-        ),
-    )
-    async def your_tool(input: str) -> str:
-        """What your tool does."""
-        return f"Processed: {input}"
-```
-
-Then in `server.py`:
-
-```python
-from my_mcp_server.tools.your_tool import register
-register(mcp)
-```
+See `resources/server_info.py` and `prompts/code_review.py` for the
+`register(mcp)` pattern this repo applies to resources and prompts. The
+same shape works for tools: define `register(mcp: FastMCP) -> None` in
+`src/my_mcp_server/tools/your_tool.py`, decorate `@mcp.tool(...)` inside,
+then call `register(mcp)` from `server.py`.
 
 ## Adding Resources
 
@@ -213,10 +192,7 @@ Setup: [PyPI OIDC trusted publishing docs](https://docs.pypi.org/trusted-publish
 src/my_mcp_server/
 ├── __init__.py          # Version
 ├── __main__.py          # python -m entry point
-├── server.py            # FastMCP server + inline tools + helpers
-├── tools/
-│   ├── __init__.py
-│   └── greet.py          # Example modular tool
+├── server.py            # FastMCP server + inline `greet` tool example
 ├── resources/
 │   ├── __init__.py
 │   └── server_info.py    # Example resource (info://server/status)

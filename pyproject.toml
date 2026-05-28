@@ -73,8 +73,10 @@ branch = true
 source = ["my_mcp_server"]
 
 [tool.coverage.report]
-exclude_lines = [
-    "pragma: no cover",
+# Defaults already cover `pragma: no cover`. Add patterns here when you
+# introduce code that should NOT count against coverage — e.g.
+# `if TYPE_CHECKING:` blocks, `raise NotImplementedError` stubs.
+exclude_also = [
+    "if TYPE_CHECKING:",
     "if __name__ == .__main__.:",
-    "raise NotImplementedError",
 ]

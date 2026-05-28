@@ -28,7 +28,21 @@ jobs:
 
       - name: Label major updates for manual review
         if: steps.meta.outputs.update-type == 'version-update:semver-major'
-        run: gh pr edit "$PR_URL" --add-label "dependencies,manual-review"
+        # 1. Ensure the `manual-review` label exists (idempotent; `--force`
+        #    succeeds whether or not it pre-exists). Without this `gh pr edit
+        #    --add-label` fails on a fresh repo, taking the whole job red.
+        # 2. Disable any prior `--auto` enable from an earlier classification
+        #    of this same PR — Dependabot may rebase a minor into a major; the
+        #    auto-merge wouldn't otherwise be revoked and the major would
+        #    silently squash-merge once CI passes.
+        # 3. Apply the labels so a maintainer sees the PR in their queue.
+        run: |
+          gh label create manual-review \
+            --color fbca04 \
+            --description "Needs maintainer decision before merging" \
+            --force
+          gh pr merge --disable-auto "$PR_URL" || true
+          gh pr edit "$PR_URL" --add-label "dependencies,manual-review"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

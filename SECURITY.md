@@ -36,6 +36,10 @@ your new repo:
 ```bash
 REPO=your-org/your-repo
 
+# Most of these endpoints need repo admin AND token scopes that the default
+# `gh auth login` flow does not request. Refresh first:
+gh auth refresh -s admin:repo,security_events
+
 # Secret scanning + push protection (public repos: free; private: needs GHAS)
 gh api -X PATCH "repos/$REPO" \
   -f 'security_and_analysis[secret_scanning][status]=enabled' \
@@ -45,7 +49,12 @@ gh api -X PATCH "repos/$REPO" \
 gh api -X PUT "repos/$REPO/vulnerability-alerts"
 gh api -X PUT "repos/$REPO/automated-security-fixes"
 
-# Branch protection — adjust required checks to match your CI job names
+# Branch protection — the `checks` list below MUST match the actual job names
+# your ci.yml produces. The example matches this repo's matrix
+# (`security`, `licenses`, plus `test (3.11/3.12/3.13)`). If you change the
+# Python matrix (drop 3.11, add 3.14, rename `test`) UPDATE THIS LIST IN
+# LOCKSTEP — otherwise required checks point at jobs that never report and
+# every PR sits in "Expected — waiting for status" forever.
 gh api -X PUT "repos/$REPO/branches/main/protection" --input - <<'JSON'
 {
   "required_status_checks": {
@@ -65,6 +74,12 @@ JSON
 
 # Auto-merge + auto-delete merged branches
 gh api -X PATCH "repos/$REPO" -F allow_auto_merge=true -F delete_branch_on_merge=true
+
+# Dependabot auto-merge needs a `manual-review` label (referenced by
+# .github/workflows/dependabot-auto-merge.yml). The workflow creates it
+# idempotently on first major-bump PR, but you can seed it now:
+gh label create manual-review --color fbca04 \
+  --description "Needs maintainer decision before merging" --force
 ```
 
 ## Best Practices

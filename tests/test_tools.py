@@ -52,6 +52,20 @@ async def test_greet_accepts_boundary_lengths():
 # JSON Schema generation (the actual MCP wire contract) is never exercised.
 
 
+def _schema_constraint(prop: dict, key: str) -> object:
+    """Read a JSON Schema keyword that may sit at the top of a property OR
+    inside an ``anyOf`` branch (which is how pydantic emits constraints once
+    a field gains a union type, e.g. ``Annotated[str | None, Field(...)]``).
+    Returns the first match; raises a clear AssertionError if neither shape
+    contains the key."""
+    if key in prop:
+        return prop[key]
+    for sub in prop.get("anyOf", []):
+        if key in sub:
+            return sub[key]
+    raise AssertionError(f"{key!r} not found in property schema {prop!r}")
+
+
 async def test_greet_registered_on_server():
     """The greet tool is wired into the server and its JSON Schema reflects
     the Annotated[..., Field(min_length, max_length)] constraints."""
@@ -63,7 +77,7 @@ async def test_greet_registered_on_server():
 
     schema = by_name["greet"].inputSchema
     name_prop = schema["properties"]["name"]
-    assert name_prop["type"] == "string"
-    assert name_prop["minLength"] == 1
-    assert name_prop["maxLength"] == 200
+    assert _schema_constraint(name_prop, "type") == "string"
+    assert _schema_constraint(name_prop, "minLength") == 1
+    assert _schema_constraint(name_prop, "maxLength") == 200
     assert "name" in schema["required"]
