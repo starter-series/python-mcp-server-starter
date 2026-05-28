@@ -172,10 +172,7 @@ python -m my_mcp_server
 src/my_mcp_server/
 ├── __init__.py          # 버전
 ├── __main__.py          # python -m 진입점
-├── server.py            # FastMCP 서버 + 인라인 툴 + 헬퍼
-├── tools/
-│   ├── __init__.py
-│   └── greet.py          # 모듈형 툴 예시
+├── server.py            # FastMCP 서버 + 인라인 `greet` 툴 예시
 ├── resources/
 │   ├── __init__.py
 │   └── server_info.py    # Resource 예시 (info://server/status)

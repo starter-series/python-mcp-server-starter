@@ -41,7 +41,7 @@ jobs:
           - [ ] Update `pyproject.toml` — change `name`, `description`, `authors`, `[project.scripts]` entry
           - [ ] Rename `src/my_mcp_server/` package directory to match your project name
           - [ ] Update imports and `pyproject.toml` scripts after rename
-          - [ ] Replace the example `greet` tool with your own tools in `src/<your_pkg>/tools/`
+          - [ ] Replace the inline `greet` example in `src/<your_pkg>/server.py` with your own tools (or split into modules — see `resources/` and `prompts/` for the `register(mcp)` pattern)
           - [ ] Set safety annotations on each tool (readOnly, destructive, idempotent, openWorld)
           - [ ] Update tests in `tests/`
 

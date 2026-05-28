@@ -22,6 +22,14 @@ TITLE = "Server Info"
 DESCRIPTION = "Server metadata: name, version, Python runtime, and platform."
 MIME_TYPE = "application/json"
 
+# Convention: PyPI distribution name = import package name with underscores
+# rewritten as hyphens. Derived from `__package__` so a clone that renames
+# `src/my_mcp_server/` (per setup.yml's first-run checklist) doesn't have to
+# update a second hardcoded literal — the wheel-install fallback below picks
+# the new name up automatically.
+PKG_NAME = (__package__ or "my_mcp_server").split(".")[0].replace("_", "-")
+FALLBACK_VERSION = "0.0.0"
+
 
 def _read_pyproject() -> dict[str, str] | None:
     """Walk up from this file to locate pyproject.toml and parse it.
@@ -45,15 +53,15 @@ def _read_pyproject() -> dict[str, str] | None:
 def _server_metadata() -> dict[str, object]:
     project = _read_pyproject()
     if project is not None:
-        pkg_name = str(project.get("name", "my-mcp-server"))
-        pkg_version = str(project.get("version", "0.0.0"))
+        pkg_name = str(project.get("name", PKG_NAME))
+        pkg_version = str(project.get("version", FALLBACK_VERSION))
     else:
         # Fallback for wheel installs where pyproject.toml isn't shipped.
-        pkg_name = "my-mcp-server"
+        pkg_name = PKG_NAME
         try:
             pkg_version = version(pkg_name)
         except PackageNotFoundError:
-            pkg_version = "0.0.0"
+            pkg_version = FALLBACK_VERSION
 
     return {
         "name": pkg_name,

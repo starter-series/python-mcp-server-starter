@@ -1,7 +1,7 @@
 """MCP server entry point.
 
-Registers tools, resources, and prompts via FastMCP.
-Add your own tools in the tools/ directory following the greet.py pattern.
+Registers tools, resources, and prompts via FastMCP. Add your own tools
+inline below the existing `greet` example, or split them into modules.
 """
 
 import logging
@@ -68,11 +68,9 @@ async def greet(
     return f"Hello, {name}!"
 
 
-# To add more tools, either decorate inline above or create a module under
-# tools/ exposing a `register(mcp)` function and call it here, e.g.:
-#
-#   from my_mcp_server.tools.your_tool import register
-#   register(mcp)
+# To add more tools, either decorate inline above or split them into modules
+# (see resources/server_info.py and prompts/code_review.py for the `register(mcp)`
+# pattern this repo applies to resources and prompts).
 
 
 # ---------------------------------------------------------------------------
