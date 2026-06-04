@@ -3,6 +3,15 @@ fixed URI.
 
 Resources are how you expose data to the client (in contrast to Tools which
 perform actions). Replace with your own resource.
+
+Identity (dist name + version) is NOT re-derived here. It comes from the
+package root (:mod:`my_mcp_server`), which is the single source of truth:
+``importlib.metadata`` first (authoritative for an installed distribution),
+then this package's own ``pyproject.toml`` as a dev fallback, then
+``FALLBACK_VERSION``. Routing through that one helper means the version the
+server *reports* can never drift from the version the package *is*, and a
+foreign / monorepo-parent ``pyproject.toml`` found on a walk-up can never
+masquerade as this server's identity. See ``my_mcp_server/__init__.py``.
 """
 
 from __future__ import annotations
@@ -10,11 +19,10 @@ from __future__ import annotations
 import json
 import platform
 import sys
-import tomllib
-from importlib.metadata import PackageNotFoundError, version
-from pathlib import Path
 
 from mcp.server.fastmcp import FastMCP
+
+from my_mcp_server import DIST_NAME, FALLBACK_VERSION, resolve_version
 
 NAME = "server-info"
 URI = "info://server/status"
@@ -22,50 +30,27 @@ TITLE = "Server Info"
 DESCRIPTION = "Server metadata: name, version, Python runtime, and platform."
 MIME_TYPE = "application/json"
 
-# Convention: PyPI distribution name = import package name with underscores
-# rewritten as hyphens. Derived from `__package__` so a clone that renames
-# `src/my_mcp_server/` (per setup.yml's first-run checklist) doesn't have to
-# update a second hardcoded literal — the wheel-install fallback below picks
-# the new name up automatically.
-PKG_NAME = (__package__ or "my_mcp_server").split(".")[0].replace("_", "-")
-FALLBACK_VERSION = "0.0.0"
+# Back-compat alias: the dist name lives in the package root now. Kept so any
+# external consumer that imported ``server_info.PKG_NAME`` still resolves.
+PKG_NAME = DIST_NAME
 
-
-def _read_pyproject() -> dict[str, str] | None:
-    """Walk up from this file to locate pyproject.toml and parse it.
-
-    Returns the ``[project]`` table as a dict, or None if not found
-    (e.g. when installed from a wheel without the source tree).
-    """
-    here = Path(__file__).resolve()
-    for parent in here.parents:
-        candidate = parent / "pyproject.toml"
-        if candidate.is_file():
-            with candidate.open("rb") as fh:
-                data = tomllib.load(fh)
-            project = data.get("project")
-            if isinstance(project, dict):
-                return project
-            return None
-    return None
+__all__ = [
+    "DESCRIPTION",
+    "FALLBACK_VERSION",
+    "MIME_TYPE",
+    "NAME",
+    "PKG_NAME",
+    "TITLE",
+    "URI",
+    "register",
+    "server_info",
+]
 
 
 def _server_metadata() -> dict[str, object]:
-    project = _read_pyproject()
-    if project is not None:
-        pkg_name = str(project.get("name", PKG_NAME))
-        pkg_version = str(project.get("version", FALLBACK_VERSION))
-    else:
-        # Fallback for wheel installs where pyproject.toml isn't shipped.
-        pkg_name = PKG_NAME
-        try:
-            pkg_version = version(pkg_name)
-        except PackageNotFoundError:
-            pkg_version = FALLBACK_VERSION
-
     return {
-        "name": pkg_name,
-        "version": pkg_version,
+        "name": DIST_NAME,
+        "version": resolve_version(),
         "runtime": {
             "python": sys.version.split()[0],
             "platform": platform.system().lower(),
