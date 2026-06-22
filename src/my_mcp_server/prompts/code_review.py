@@ -11,7 +11,7 @@ from typing import Annotated, Literal
 
 from mcp.server.fastmcp import FastMCP
 from mcp.server.fastmcp.prompts.base import UserMessage
-from pydantic import Field, validate_call
+from pydantic import StringConstraints, validate_call
 
 NAME = "code-review"
 TITLE = "Code Review"
@@ -30,7 +30,7 @@ _LANGUAGE_LABEL: dict[str, str] = {
 @validate_call
 def code_review(
     language: Language,
-    code: Annotated[str, Field(min_length=1, description="Source code to review.")],
+    code: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)],
 ) -> list[UserMessage]:
     """Render a code-review prompt as a single-user-message template.
 

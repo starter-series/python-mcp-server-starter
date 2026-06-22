@@ -51,7 +51,8 @@ jobs:
 
       - name: Build
         run: |
-          pip install build
+          python -m pip install --upgrade pip
+          python -m pip install build
           python -m build
 
       - name: Generate SLSA build provenance attestation

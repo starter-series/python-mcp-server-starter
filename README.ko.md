@@ -39,7 +39,8 @@ MCP 서버를 만들고, 원클릭 배포. 시크릿 불필요.
 npx @starter-series/create my-mcp-server --template mcp-server-python
 cd my-mcp-server
 python -m venv .venv && source .venv/bin/activate
-pip install -e '.[dev]'
+python -m pip install -e '.[dev]'
+python -m pytest
 ```
 
 **또는 직접 클론:**
@@ -48,7 +49,8 @@ pip install -e '.[dev]'
 git clone https://github.com/starter-series/python-mcp-server-starter my-mcp-server
 cd my-mcp-server
 python -m venv .venv && source .venv/bin/activate
-pip install -e '.[dev]'
+python -m pip install -e '.[dev]'
+python -m pytest
 ```
 
 ## 도구 추가
@@ -137,13 +139,25 @@ def register(mcp: FastMCP) -> None:
 
 ```bash
 # 테스트 실행
-pytest -v
+python -m pytest -v
 
 # 린트
-ruff check .
+python -m ruff check .
+
+# 포맷 확인
+python -m ruff format --check .
+
+# 타입 확인
+python -m mypy src/
+
+# wheel + sdist 빌드
+python -m build
 
 # 서버 실행 (stdio)
 python -m my_mcp_server
+
+# 설치된 console script로 동일 서버 실행
+my-mcp-server
 ```
 
 ## CI/CD
@@ -182,11 +196,14 @@ src/my_mcp_server/
 tests/
 ├── test_tools.py         # 툴 테스트
 ├── test_server_info.py   # Resource 테스트
-└── test_code_review.py   # Prompt 테스트
+├── test_code_review.py   # Prompt 테스트
+├── test_runtime_contract.py # 시작/패키지 메타데이터 테스트
+└── test_version_resolution.py # 버전 SSOT 테스트
 .github/
 ├── workflows/
 │   ├── ci.yml            # 린트, 테스트, 보안
 │   ├── cd.yml            # PyPI OIDC 배포
+│   ├── codeql.yml        # 정적 분석
 │   ├── stale.yml         # Stale 이슈 관리
 │   └── maintenance.yml   # 주간 헬스 체크
 └── dependabot.yml        # 의존성 업데이트
@@ -195,11 +212,14 @@ tests/
 ## 스크립트
 
 ```bash
-pip install -e ".[dev]"   # dev 의존성 포함 설치
+python -m pip install -e ".[dev]" # dev 의존성 포함 설치
 python -m my_mcp_server   # 서버 실행
-pytest -v                 # 테스트 실행
-ruff check .              # 린트
-ruff format .             # 포맷
+my-mcp-server             # 설치된 console script로 서버 실행
+python -m pytest -v       # 테스트 실행
+python -m ruff check .    # 린트
+python -m ruff format .   # 포맷
+python -m mypy src/       # 타입 확인
+python -m build           # wheel + sdist 빌드
 ```
 
 ## 라이선스
