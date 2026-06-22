@@ -38,7 +38,8 @@ MCP 서버를 만들고, 원클릭 배포. 시크릿 불필요.
 ```bash
 npx @starter-series/create my-mcp-server --template mcp-server-python
 cd my-mcp-server
-python -m venv .venv && source .venv/bin/activate
+python3.12 -m venv .venv && source .venv/bin/activate
+python -m pip install --upgrade pip
 python -m pip install -e '.[dev]'
 python -m pytest
 ```
@@ -48,7 +49,8 @@ python -m pytest
 ```bash
 git clone https://github.com/starter-series/python-mcp-server-starter my-mcp-server
 cd my-mcp-server
-python -m venv .venv && source .venv/bin/activate
+python3.12 -m venv .venv && source .venv/bin/activate
+python -m pip install --upgrade pip
 python -m pip install -e '.[dev]'
 python -m pytest
 ```
@@ -153,11 +155,17 @@ python -m mypy src/
 # wheel + sdist 빌드
 python -m build
 
+# 실제 python -m 엔트리포인트 stdio smoke
+python scripts/smoke_stdio.py
+
 # 서버 실행 (stdio)
 python -m my_mcp_server
 
 # 설치된 console script로 동일 서버 실행
 my-mcp-server
+
+# 의존성 audit
+pip-audit . --strict
 ```
 
 ## CI/CD
@@ -213,6 +221,7 @@ tests/
 
 ```bash
 python -m pip install -e ".[dev]" # dev 의존성 포함 설치
+python scripts/smoke_stdio.py # MCP 클라이언트로 python -m my_mcp_server 실행
 python -m my_mcp_server   # 서버 실행
 my-mcp-server             # 설치된 console script로 서버 실행
 python -m pytest -v       # 테스트 실행
@@ -220,6 +229,7 @@ python -m ruff check .    # 린트
 python -m ruff format .   # 포맷
 python -m mypy src/       # 타입 확인
 python -m build           # wheel + sdist 빌드
+pip-audit . --strict      # 의존성 audit
 ```
 
 ## 라이선스
