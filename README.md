@@ -41,7 +41,8 @@ Build your MCP server. One-click publish. Zero secrets needed.
 ```bash
 npx @starter-series/create my-mcp-server --template mcp-server-python
 cd my-mcp-server
-python -m venv .venv && source .venv/bin/activate
+python3.12 -m venv .venv && source .venv/bin/activate
+python -m pip install --upgrade pip
 python -m pip install -e '.[dev]'
 python -m pytest
 ```
@@ -51,7 +52,8 @@ python -m pytest
 ```bash
 git clone https://github.com/starter-series/python-mcp-server-starter my-mcp-server
 cd my-mcp-server
-python -m venv .venv && source .venv/bin/activate
+python3.12 -m venv .venv && source .venv/bin/activate
+python -m pip install --upgrade pip
 python -m pip install -e '.[dev]'
 python -m pytest
 ```
@@ -173,11 +175,17 @@ python -m mypy src/
 # Build wheel + sdist
 python -m build
 
+# Stdio smoke against the actual python -m entrypoint
+python scripts/smoke_stdio.py
+
 # Run the server (stdio)
 python -m my_mcp_server
 
 # Same server via installed console script
 my-mcp-server
+
+# Dependency audit
+pip-audit . --strict
 ```
 
 ## CI/CD
@@ -233,6 +241,7 @@ tests/
 
 ```bash
 python -m pip install -e ".[dev]" # Install with dev deps
+python scripts/smoke_stdio.py # Start python -m my_mcp_server through an MCP client
 python -m my_mcp_server   # Run server
 my-mcp-server             # Run installed console script
 python -m pytest -v       # Run tests
@@ -240,6 +249,7 @@ python -m ruff check .    # Lint
 python -m ruff format .   # Format
 python -m mypy src/       # Type check
 python -m build           # Build wheel + sdist
+pip-audit . --strict      # Dependency audit
 ```
 
 ## License
