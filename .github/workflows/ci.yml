@@ -52,7 +52,9 @@ jobs:
           cache-dependency-path: pyproject.toml
 
       - name: Install dependencies
-        run: pip install -e . pip-licenses
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
 
       - name: Check licenses
         run: pip-licenses --fail-on="GPL-2.0;GPL-3.0;AGPL-3.0"
@@ -72,12 +74,12 @@ jobs:
           cache-dependency-path: pyproject.toml
 
       - name: Install dependencies
-        run: pip install -e ".[dev]"
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
 
       - name: Dependency audit (pip-audit)
-        run: |
-          python -m pip install pip-audit
-          pip-audit --strict || pip-audit
+        run: pip-audit . --strict
 
       - name: Lint
         run: ruff check .

@@ -18,6 +18,12 @@ async def test_greet_custom_name():
     assert result == "Hello, Ploidy!"
 
 
+async def test_greet_strips_surrounding_whitespace():
+    """Whitespace around a valid name is normalization, not part of the name."""
+    result = await _validated_greet(name="  World  ")
+    assert result == "Hello, World!"
+
+
 # --- input bound enforcement -----------------------------------------------
 # Calling the tool function directly bypasses FastMCP's protocol-level
 # schema validation. Wrapping with `validate_call` is the same enforcement
@@ -31,6 +37,12 @@ async def test_greet_rejects_empty_name():
     """min_length=1 — empty string must be rejected at the protocol layer."""
     with pytest.raises(ValidationError):
         await _validated_greet(name="")
+
+
+async def test_greet_rejects_whitespace_only_name():
+    """strip_whitespace + min_length=1 rejects blank-looking input."""
+    with pytest.raises(ValidationError):
+        await _validated_greet(name="   ")
 
 
 async def test_greet_rejects_oversize_name():

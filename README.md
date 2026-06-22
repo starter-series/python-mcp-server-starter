@@ -42,7 +42,8 @@ Build your MCP server. One-click publish. Zero secrets needed.
 npx @starter-series/create my-mcp-server --template mcp-server-python
 cd my-mcp-server
 python -m venv .venv && source .venv/bin/activate
-pip install -e '.[dev]'
+python -m pip install -e '.[dev]'
+python -m pytest
 ```
 
 **Or clone directly:**
@@ -51,7 +52,8 @@ pip install -e '.[dev]'
 git clone https://github.com/starter-series/python-mcp-server-starter my-mcp-server
 cd my-mcp-server
 python -m venv .venv && source .venv/bin/activate
-pip install -e '.[dev]'
+python -m pip install -e '.[dev]'
+python -m pytest
 ```
 
 ## Adding Tools
@@ -157,13 +159,25 @@ Add your own in `server.py`.
 
 ```bash
 # Run tests
-pytest -v
+python -m pytest -v
 
 # Lint
-ruff check .
+python -m ruff check .
+
+# Format check
+python -m ruff format --check .
+
+# Type check
+python -m mypy src/
+
+# Build wheel + sdist
+python -m build
 
 # Run the server (stdio)
 python -m my_mcp_server
+
+# Same server via installed console script
+my-mcp-server
 ```
 
 ## CI/CD
@@ -202,11 +216,14 @@ src/my_mcp_server/
 tests/
 ├── test_tools.py         # Tool tests
 ├── test_server_info.py   # Resource tests
-└── test_code_review.py   # Prompt tests
+├── test_code_review.py   # Prompt tests
+├── test_runtime_contract.py # Startup + package metadata tests
+└── test_version_resolution.py # Version SSOT tests
 .github/
 ├── workflows/
 │   ├── ci.yml            # Lint, test, security
 │   ├── cd.yml            # PyPI OIDC publish
+│   ├── codeql.yml        # Static analysis
 │   ├── stale.yml         # Stale issue management
 │   └── maintenance.yml   # Weekly health check
 └── dependabot.yml        # Dependency updates
@@ -215,11 +232,14 @@ tests/
 ## Scripts
 
 ```bash
-pip install -e ".[dev]"   # Install with dev deps
+python -m pip install -e ".[dev]" # Install with dev deps
 python -m my_mcp_server   # Run server
-pytest -v                 # Run tests
-ruff check .              # Lint
-ruff format .             # Format
+my-mcp-server             # Run installed console script
+python -m pytest -v       # Run tests
+python -m ruff check .    # Lint
+python -m ruff format .   # Format
+python -m mypy src/       # Type check
+python -m build           # Build wheel + sdist
 ```
 
 ## License
