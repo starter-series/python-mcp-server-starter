@@ -36,7 +36,7 @@ MCP 서버를 만들고, 원클릭 배포. 시크릿 불필요.
 **[create-starter](https://github.com/starter-series/create-starter) 사용** (권장):
 
 ```bash
-npx @starter-series/create my-mcp-server --template mcp-server-python
+gh repo create my-mcp-server --template starter-series/python-mcp-server-starter --clone
 cd my-mcp-server
 python3.12 -m venv .venv && source .venv/bin/activate
 python -m pip install --upgrade pip
