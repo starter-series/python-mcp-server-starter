@@ -39,7 +39,7 @@ Build your MCP server. One-click publish. Zero secrets needed.
 **Via [create-starter](https://github.com/starter-series/create-starter)** (recommended):
 
 ```bash
-npx @starter-series/create my-mcp-server --template mcp-server-python
+gh repo create my-mcp-server --template starter-series/python-mcp-server-starter --clone
 cd my-mcp-server
 python3.12 -m venv .venv && source .venv/bin/activate
 python -m pip install --upgrade pip
