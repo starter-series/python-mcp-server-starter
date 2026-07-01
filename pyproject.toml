@@ -22,7 +22,7 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
 ]
 dependencies = [
-    "mcp>=1.27.1,<2",
+    "mcp>=1.28.1,<2",
 ]
 
 [project.urls]
