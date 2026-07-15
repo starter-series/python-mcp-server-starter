@@ -43,7 +43,7 @@ dev = [
     "pytest-asyncio>=1.4.0,<2",
     "pytest-cov>=7.1.0,<8",
     "ruff>=0.15.14,<1",
-    "mypy>=2.1.0,<3",
+    "mypy>=2.3.0,<3",
 ]
 
 [tool.ruff]
