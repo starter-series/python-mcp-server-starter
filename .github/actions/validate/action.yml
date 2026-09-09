@@ -1,0 +1,17 @@
+name: Validate python-mcp-server-starter
+description: Deliverable-specific checks; runtime and security policy live in starter-series/.github.
+runs:
+  using: composite
+  steps:
+  - name: Lint
+    run: ruff check .
+    shell: bash
+  - name: Format check
+    run: ruff format --check .
+    shell: bash
+  - name: Type check
+    run: mypy src/
+    shell: bash
+  - name: Test (with coverage)
+    run: pytest -v --cov=my_mcp_server --cov-report=term-missing --cov-fail-under=70
+    shell: bash
