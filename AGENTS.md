@@ -87,3 +87,11 @@ For larger servers, copy the `register(mcp)` pattern from
   checks without documenting the tradeoff.
 - Do not add required secrets for normal CI. Publishing may require platform
   setup, but CI should stay secret-free.
+
+## Fleet CI policy
+
+Common runtime, audit, license, secret-scan and CodeQL policy lives in
+[starter-series/.github](https://github.com/starter-series/.github).
+Keep deliverable checks in `.github/actions/validate/action.yml`.
+Weekly health and failures are aggregated in the central Fleet maintenance workflow;
+this repository retains a manual maintenance runner without issue automation.

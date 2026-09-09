@@ -1,94 +1,24 @@
 name: CI
-
-on:
+'on':
   push:
-    branches: [main]
+    branches:
+    - main
   pull_request:
-    branches: [main]
-  workflow_call:
-
+    branches:
+    - main
+  workflow_call: {}
+  workflow_dispatch: {}
 permissions:
   contents: read
-
 jobs:
-  security:
+  checks:
+    uses: starter-series/.github/.github/workflows/reusable-python-ci.yml@main
+  ci:
+    if: ${{ always() }}
+    needs:
+    - checks
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-
-      - name: Scan for secrets
-        env:
-          # Bump together; checksum from
-          # https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_checksums.txt
-          GITLEAKS_VERSION: 8.30.1
-          GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
-        run: |
-          set -euo pipefail
-          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" -o /tmp/gitleaks.tgz
-          echo "${GITLEAKS_SHA256}  /tmp/gitleaks.tgz" | sha256sum -c -
-          tar xz -C /tmp -f /tmp/gitleaks.tgz
-          /tmp/gitleaks detect --source . --verbose --redact
-
-      - name: Check for large files
-        run: |
-          LARGE=$(find . -not -path './.git/*' -not -path './.venv/*' -type f -size +5M)
-          if [ -n "$LARGE" ]; then
-            echo "::error::Large files detected (>5 MB):"
-            echo "$LARGE"
-            exit 1
-          fi
-
-  licenses:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-
-      - uses: actions/setup-python@v6
-        with:
-          python-version: "3.13"
-          cache: pip
-          cache-dependency-path: pyproject.toml
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install -e ".[dev]"
-
-      - name: Check licenses
-        run: pip-licenses --fail-on="GPL-2.0;GPL-3.0;AGPL-3.0"
-
-  test:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.11", "3.12", "3.13"]
-    steps:
-      - uses: actions/checkout@v6
-
-      - uses: actions/setup-python@v6
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: pip
-          cache-dependency-path: pyproject.toml
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install -e ".[dev]"
-
-      - name: Dependency audit (pip-audit)
-        run: pip-audit . --strict
-
-      - name: Lint
-        run: ruff check .
-
-      - name: Format check
-        run: ruff format --check .
-
-      - name: Type check
-        run: mypy src/
-
-      - name: Test (with coverage)
-        run: pytest -v --cov=my_mcp_server --cov-report=term-missing --cov-fail-under=70
+    - uses: starter-series/.github/.github/actions/require-checks@main
+      with:
+        results: ${{ toJSON(needs) }}
