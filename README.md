@@ -117,6 +117,7 @@ Then in `server.py`:
 
 ```python
 from my_mcp_server.resources.your_resource import register as register_your_resource
+
 register_your_resource(mcp)
 ```
 
