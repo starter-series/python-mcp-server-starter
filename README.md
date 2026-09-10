@@ -256,3 +256,5 @@ pip-audit . --strict      # Dependency audit
 ## License
 
 MIT
+
+Before publishing, customize the package name, author, project URLs, and console command, then run `python scripts/check_template_ready.py`.

@@ -49,6 +49,9 @@ jobs:
             exit 1
           fi
 
+      - name: Check template metadata
+        run: python scripts/check_template_ready.py
+
       - name: Build
         run: |
           python -m pip install --upgrade pip
