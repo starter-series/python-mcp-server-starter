@@ -236,3 +236,5 @@ pip-audit . --strict      # 의존성 audit
 ## 라이선스
 
 MIT
+
+게시 전에 패키지 이름·저자·프로젝트 URL·콘솔 명령을 수정하고 실행하세요: `python scripts/check_template_ready.py`.
